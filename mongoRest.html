@@ -27,9 +27,6 @@
             
             function compareRefreshData(newData){
                 
-                /*var dtoToDelete=new Array();
-                var dtoToInsert=new Array();
-                var dtoToReplace = new Array();*/
                 dtoToAction = new Array();
                 
                 var modelCursor = 0;
@@ -69,75 +66,17 @@
                                     dtoToAction.push({dto:newDataDtoInspection,position:key,action:"update"});
                                 }
                             }
-                            /*var nbdtDelteUnder=0;
-                            for (var key2 in dtoToDelete){
-                                 var deletedDtoInspection = dtoToDelete[key2];
-                                 if (deletedDtoInspection.position<key2){
-                                     nbdtDelteUnder++;
-                                 }
-                            }*/
+
                             if(!finded){
                                 dtoToInsert.push({dto:newDataDtoInspection,position:key});
                                 dtoToAction.push({dto:newDataDtoInspection,position:key,action:"insert"});
                             }
                         }
-               // console.log(dtoToDelete);
-            //    console.log(dtoToInsert);
-             //   console.log(dtoToReplace);
-                
-               /* dtoToDelete = dtoToDelete.sort(function(obj1, obj2) {
-                    return obj1.position - obj2.position;
-                });
-                
-                dtoToInsert=dtoToInsert.sort(function(obj1, obj2) {
-                    return obj1.position - obj2.position;
-                });
-                dtoToReplace=dtoToReplace.sort(function(obj1, obj2) {
-                    return obj1.position - obj2.position;
-                });*/
                 
                 console.log(dtoToDelete);
                 console.log(dtoToInsert);
                 console.log(dtoToReplace);
                 
-                
-               /*while((modelCursor<modelData.length && newDataCursor<newData.length)&&infinteLoopCounter<20){
-                    console.log("allo");
-                    var modelDto = modelData[modelCursor];
-                    var newDataDto = newData[newDataCursor];
-                    if (modelDto._id!=newDataDto._id){
-
-                        var modelDataToTreat = modelData.slice(modelCursor);
-                        console.log(newDataDto._id);
-                        var findedPosition = null;
-                        for(var key in modelDataToTreat){
-                            var modelDataDtoInspection = modelDataToTreat[key];
-                            console.log(modelDataDtoInspection);
-                            if(modelDataDtoInspection._id==newDataDto._id){
-                                //modelDataDtoFinded=true;
-                                findedPosition=key;
-                            }
-                        }
-                         console.log("finded position :"+findedPosition)
-                        if (findedPosition!=null){
-                            //DELETE IHM TO finded position
-                            console.log("delete model from"+modelCursor+" to "+findedPosition);
-                            modelCursor =findedPosition
-                        }else{
-                            //insert IHM before modelCursor
-                            console.log("insert newData :"+newDataCursor);
-                            newDataCursor++;
-                        }
-                    }else{
-                        //remplacement de la ligne d'IHM
-                        console.log("replace :"+newDataCursor);
-                        newDataCursor++;
-                        modelCursor++;
-                    }
-                    infinteLoopCounter=infinteLoopCounter+1;
-                }*/
-                
-                //remplacement du model
             
             };
             
