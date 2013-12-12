@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title> </title>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+        <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js"></script>
+        <script src="./js/jquery.loadTemplate-1.3.2.js"></script>
+        <link href="//ajax.googleapis.com/ajax/libs/jqueryui/1/themes/smoothness/jquery-ui.css" rel="stylesheet" type="text/css" />
+        <link href="./main.css" rel="stylesheet" type="text/css" />
+        <script>
+            var modelData = new Array();
+            
+            var dtoToDelete=new Array();
+            var dtoToInsert=new Array();
+            var dtoToReplace = new Array();
+            var dtoToAction = new Array();
+            
+            function periodicRefresh() {
+                console.log("5 seconds");
+                getRestDTO();
+                setTimeout(periodicRefresh, 5000);
+            }
+
+            setTimeout(periodicRefresh, 5000);
+            
+            function compareRefreshData(newData){
+                
+                /*var dtoToDelete=new Array();
+                var dtoToInsert=new Array();
+                var dtoToReplace = new Array();*/
+                dtoToAction = new Array();
+                
+                var modelCursor = 0;
+                var newDataCursor=0;
+                console.log(modelData.length)
+                console.log(newData.length)
+                
+                var infinteLoopCounter=0;
+                
+                
+                for(var key in modelData){
+                            var modelDataDtoInspection = modelData[key];
+                            var finded = false;
+                            for(var key2 in newData){
+                                var newDataDtoInspection = newData[key2];
+                                if(modelDataDtoInspection._id.$oid==newDataDtoInspection._id.$oid){
+                                    finded=true;    
+                                   
+                                }
+                            }
+                            if(!finded){
+                                dtoToDelete.push({dto:modelDataDtoInspection,position:key});
+                                dtoToAction.push({dto:modelDataDtoInspection,position:key,action:"delete"});
+                            }
+                        }
+                
+                for(var key in newData){
+                            var newDataDtoInspection = newData[key];
+                            var finded = false;
+                            var modelDtoPosition=null;
+                            for(var key2 in modelData){
+                                var modelDataDtoInspection = modelData[key2];
+                                if(modelDataDtoInspection._id.$oid==newDataDtoInspection._id.$oid){
+                                    finded=true;   
+                                    modelDtoPosition = key;
+                                    dtoToReplace.push({dto : newDataDtoInspection,position:key});
+                                    dtoToAction.push({dto:newDataDtoInspection,position:key,action:"update"});
+                                }
+                            }
+                            /*var nbdtDelteUnder=0;
+                            for (var key2 in dtoToDelete){
+                                 var deletedDtoInspection = dtoToDelete[key2];
+                                 if (deletedDtoInspection.position<key2){
+                                     nbdtDelteUnder++;
+                                 }
+                            }*/
+                            if(!finded){
+                                dtoToInsert.push({dto:newDataDtoInspection,position:key});
+                                dtoToAction.push({dto:newDataDtoInspection,position:key,action:"insert"});
+                            }
+                        }
+               // console.log(dtoToDelete);
+            //    console.log(dtoToInsert);
+             //   console.log(dtoToReplace);
+                
+               /* dtoToDelete = dtoToDelete.sort(function(obj1, obj2) {
+                    return obj1.position - obj2.position;
+                });
+                
+                dtoToInsert=dtoToInsert.sort(function(obj1, obj2) {
+                    return obj1.position - obj2.position;
+                });
+                dtoToReplace=dtoToReplace.sort(function(obj1, obj2) {
+                    return obj1.position - obj2.position;
+                });*/
+                
+                console.log(dtoToDelete);
+                console.log(dtoToInsert);
+                console.log(dtoToReplace);
+                
+                
+               /*while((modelCursor<modelData.length && newDataCursor<newData.length)&&infinteLoopCounter<20){
+                    console.log("allo");
+                    var modelDto = modelData[modelCursor];
+                    var newDataDto = newData[newDataCursor];
+                    if (modelDto._id!=newDataDto._id){
+
+                        var modelDataToTreat = modelData.slice(modelCursor);
+                        console.log(newDataDto._id);
+                        var findedPosition = null;
+                        for(var key in modelDataToTreat){
+                            var modelDataDtoInspection = modelDataToTreat[key];
+                            console.log(modelDataDtoInspection);
+                            if(modelDataDtoInspection._id==newDataDto._id){
+                                //modelDataDtoFinded=true;
+                                findedPosition=key;
+                            }
+                        }
+                         console.log("finded position :"+findedPosition)
+                        if (findedPosition!=null){
+                            //DELETE IHM TO finded position
+                            console.log("delete model from"+modelCursor+" to "+findedPosition);
+                            modelCursor =findedPosition
+                        }else{
+                            //insert IHM before modelCursor
+                            console.log("insert newData :"+newDataCursor);
+                            newDataCursor++;
+                        }
+                    }else{
+                        //remplacement de la ligne d'IHM
+                        console.log("replace :"+newDataCursor);
+                        newDataCursor++;
+                        modelCursor++;
+                    }
+                    infinteLoopCounter=infinteLoopCounter+1;
+                }*/
+                
+                //remplacement du model
+            
+            };
+            
+            function builDOMDTO(dtoToRender){
+                 var tmpContainer = $("<div></div>");
+                tmpContainer.loadTemplate($("#templateDTOContainer"), dtoToRender);
+                var templatedElements = tmpContainer.find(".itemRow");
+                //console.log(templatedElements);
+				templatedElements.on("click",function(){
+				    if(!$(this).hasClass("editing")){
+				    	var text1 = $(this).find(".typeItemContent").val();
+				    	//console.log($(this).find(".typeItemContent"));
+				    	//console.log("find "+text1);
+                        $(this).find(".typeItemcontrol option").filter(function() {
+                            //may want to use $.trim in here
+                            return $(this).text() == text1; 
+                        }).prop('selected', true);
+    				    $(this).find(".itemContentRead").hide();
+    				    $(this).find(".itemContentEdit").show();
+    				    $(this).addClass("editing");
+				    }
+                });
+                
+                 templatedElements.find(".deleteDTOButton").on("click",function(event) {
+					var idDto = $(this).parents(".itemRow").find(".idDTO").val();
+					deleteRestDTO(idDto);
+					event.stopPropagation();
+				});
+				
+				templatedElements.find(".cancelDTOButton").on("click",function(event) {
+    				    $(this).parents(".itemRow").find(".itemContentRead").show();
+    				    $(this).parents(".itemRow").find(".itemContentEdit").hide();
+    				    $(this).parents(".itemRow").removeClass("editing");
+    				    event.stopPropagation();
+					});
+					
+                templatedElements.find(".updateDTOButton").on("click",function(event) {
+				    console.log($(this).parents(".itemRow").find(".typeItemContent").val());
+				    
+				    var type=$(this).parents(".itemRow").find(".typeItemcontrol").val();
+				    console.log(type);
+				    if (type=="none"){
+				        type = null;
+				    }
+				    
+				    var niveau=$(this).parents(".itemRow").find(".niveauItemContent").val();
+				    if (niveau==""){
+				        niveau = null;
+				    }
+				    
+				    
+				    var dto = {
+				        id : $(this).parents(".itemRow").find(".idDTO").val(),
+				        name : $(this).parents(".itemRow").find(".nameItemContent").val(),
+				        niveau : niveau,
+				        type : type
+				    }
+				    console.log(dto);
+				    
+				    putRestDTO(dto);
+				    $(this).parents(".itemRow").find(".itemContentRead").show();
+				    $(this).parents(".itemRow").find(".itemContentEdit").hide();
+				    $(this).parents(".itemRow").removeClass("editing");
+				    event.stopPropagation();
+				});
+                templatedElements.find("input[type=submit], a, button").button();
+        		templatedElements.find(".itemContentEdit").hide();
+				return templatedElements;
+            }
+            
+            /*modelData=[
+                {_id:4},
+                {_id:5},
+                {_id:6},
+                {_id:7},
+                {_id:8},
+                {_id:12},
+                {_id:13},
+                {_id:16},
+                {_id:17},
+                {_id:18}
+            ];*/
+            var tableau2=[
+                {_id:1},
+                {_id:2},
+                {_id:3},
+                {_id:4},
+                {_id:5},
+                {_id:9},
+                {_id:10},
+                {_id:11},
+                {_id:14},
+                {_id:15}
+            ];
+            
+           
+            
+            
+        
+            function getRestDTO(){
+                $.ajax({
+                    dataType: "json",
+                    type: "get",
+                    data: {
+                    },
+                    url: "https://api.mongohq.com/databases/referentiel_imie/collections/cursus/documents?_apikey=1CcVlrLo047v9eyOrvrx5BdhRO6iNldYqUAMkUCvc4&sort=%7B%22name%22:1%7D",
+                    success: function(response){
+                    //console.log("success");
+                    //console.log(response);
+                    compareRefreshData(response);
+                    modelData=response;
+
+                    var inspectionDtoToReplaceCursor = 0;
+                    var inspectionDtoToInsertCursor = 0;
+                    var inspectionDtoToDeleteCursor = 0;
+                    var inspectionDtoToReplace=null;
+                    var inspectionDtoToInsert=null;
+                    var inspectionDtoToDelete=null;
+                    
+                    var infinitloop=0;
+                    var maxrow=35;
+                    var offSetInserted=0;
+                    var offSetDeleteImpossible=0;
+                    for(var key in dtoToAction){
+                        var dtoActionToTreat=dtoToAction[key];
+                        console.log(dtoActionToTreat);
+                        
+                        var searchElementIdex=(parseInt(dtoActionToTreat.position))*2;
+                        
+                        if(dtoActionToTreat.action=="delete"){
+                             var findedDom= $("#itemListContainer").children().eq(searchElementIdex);
+                            findedDom.next().remove();
+                            findedDom.remove();
+                        }
+                        
+                        if(dtoActionToTreat.action=="update"){
+                            //var findedDom= $("#itemListContainer").children().eq((parseInt(dtoActionToTreat.position)+offSetInserted)*2);
+                            var findedDom= $("#itemListContainer").children().eq(searchElementIdex);
+                            if (!findedDom.hasClass("editing")){
+                                var templatedElements = builDOMDTO(dtoActionToTreat.dto);
+                                findedDom.next().remove();
+    				            findedDom.replaceWith(templatedElements);
+                            }
+                        }
+                        
+                        if(dtoActionToTreat.action=="insert"){
+                            var findedDom= $("#itemListContainer").children().eq(searchElementIdex);
+                            var templatedElements = builDOMDTO(dtoActionToTreat.dto);
+                            if (findedDom.length==0){
+			                    //console.log("append");
+			                    $("#itemListContainer").append(templatedElements);
+			                }else{
+    				            console.log("insertBefore");
+    				            templatedElements.insertBefore(findedDom)
+    				        }
+                        }
+                    }
+                    
+
+                    $("#load").dialog("close");
+                    },
+                    complete: function(response){
+                    console.log("complete");
+                    console.log(response)
+                    },
+                    error: function(response){
+                    console.log("error");
+                    console.log( this );
+                    }   
+                });
+            }
+            
+            function deleteRestDTO(idDto){
+                console.log("delete id:")
+                console.log(idDto)
+                $.ajax({
+                dataType: "json",
+                type: "delete",
+                data: {},
+                url: "https://api.mongohq.com/databases/referentiel_imie/collections/cursus/documents/"+idDto+"?_apikey=1CcVlrLo047v9eyOrvrx5BdhRO6iNldYqUAMkUCvc4",
+                success: function(response){
+                console.log("success");
+                console.log(response);
+                getRestDTO();
+                $("#load").dialog("close");
+                },
+                complete: function(response){
+                console.log("complete");
+                console.log(response)
+                },
+                error: function(response){
+                console.log("error");
+                console.log( this );
+                }
+                });
+            }
+            
+            function postRestDTO(){
+                $.ajax({
+                dataType: "json",
+                type: "post",
+                data: {
+                    "document" : {
+                        name:$("#inputAddDTO").val()
+                    }
+                },
+                url: "https://api.mongohq.com/databases/referentiel_imie/collections/cursus/documents?_apikey=1CcVlrLo047v9eyOrvrx5BdhRO6iNldYqUAMkUCvc4",
+                success: function(response){
+                console.log("success");
+                console.log(response);
+                getRestDTO();
+                $("#load").dialog("close");
+                },
+                complete: function(response){
+                console.log("complete");
+                console.log(response)
+                },
+                error: function(response){
+                console.log("error");
+                console.log( this );
+                }
+                });
+            };
+            
+             function putRestDTO(dto){
+                console.log(dto);
+                $.ajax({
+                dataType: "json",
+                type: "put",
+                data: {
+                    "document" : {
+                        "$set" :{
+                            name: dto.name,
+                            type: dto.type,
+                            niveau: dto.niveau
+                        }
+                    }
+                },
+                url: "https://api.mongohq.com/databases/referentiel_imie/collections/cursus/documents/"+dto.id+"?_apikey=1CcVlrLo047v9eyOrvrx5BdhRO6iNldYqUAMkUCvc4",
+                success: function(response){
+                console.log("success");
+                console.log(response);
+                getRestDTO();
+                $("#load").dialog("close");
+                },
+                complete: function(response){
+                console.log("complete");
+                console.log(response)
+                },
+                error: function(response){
+                console.log("error");
+                console.log( this );
+                }
+                });
+            };
+
+            $(document)
+			.ready(function() {
+             $("#load").dialog();
+             
+             $("input[type=submit], a, button").button();
+             
+             $("#createDTOButton").on("click", function() {
+							postRestDTO();
+						});
+             
+            
+            });
+            
+
+            
+           
+            
+        </script>
+    </head>
+    <body style="background-image:url('http://i1215.photobucket.com/albums/cc520/ChelleCoca/gplaypattern.png');">
+        <div id="addDTOContainer" class="itemListContainer ">
+        <div id="itemAddDTOContainer" class="itemRowContainer">
+        <div id="itemAddDTOInput" class="itemCell ui-widget-content">
+            <div class="itemContent">
+                <input id="inputAddDTO" type="text"/>
+            </div>
+        </div>
+        <div id="itemAddDTOAction" class="itemCell ui-widget-content" style="width:100px; border-left-style:solid;">
+             <div class="itemContent">
+                <button id="createDTOButton"><span class="ui-icon ui-icon-plusthick"></span></button>
+            </div>
+        </div>
+        </div>
+        </div>
+        
+
+        <div id="itemListContainer" class="itemListContainer ui-widget" style="margin-top : 30px">
+        </div>
+
+        <div id="load" title="dialog">LOAD</div>
+        <script type="text/html" id="templateDTOContainer">
+            <div class="itemRowContainer itemRow itemRowEditable">
+             <div class="itemCell ui-widget-content">
+                <div style="width:250px">
+                    <div class="itemContent itemContentRead" data-content="name"/>
+                    <input type="text" class="itemContent itemContentEdit nameItemContent" data-value="name"/>
+                </div>
+                </div>
+                <div class="itemCell ui-widget-content">
+                <div style="width:60px">
+                    <div class="itemContent itemContentRead"data-content="niveau">
+                    </div>
+                    <input type="text" style="width:40px" class="itemContent itemContentEdit niveauItemContent" data-value="niveau"/>
+                </div>
+                </div>
+                <div class="itemCell ui-widget-content">
+                <div style="width:250px">
+                    <div class="itemContent itemContentRead" data-content="type">
+                    </div>
+                     <input type="hidden" class="typeItemContent" data-value="type"/>
+                    <select class="itemContent itemContentEdit typeItemcontrol">
+                        <option value="none"></option>
+                        <option value="alternance">alternance</option>
+                        <option value="continue" >continue</option>
+                    </select>
+                </div>
+                </div>
+                <div class="itemCell ui-widget-content" style="border-left-style:solid" >
+                    <input type="hidden" class="idDTO" data-value="_id.$oid"/>
+                </div>
+                <div class="itemCell ui-widget-content" style="width:180px">
+                <div style="width:180px">
+                    <button class="deleteDTOButton itemContent itemContentRead" value="delete"><span class="ui-icon ui-icon-closethick"></span></button>
+                    <button class="updateDTOButton itemContent itemContentEdit" value="update"><span class="ui-icon ui-icon-check"></span></button>
+                    <button class="cancelDTOButton itemContent itemContentEdit" value="cancel"><span class="ui-icon ui-icon-arrowreturnthick-1-w"></span></button>
+                </div>
+                </div>
+            </div>
+            <div class="itemRowContainer itemRow" style="height:2px; backround-color:red"></div>
+        </script>
+        <script type="text/html" id="templateDTO">
+            
+               
+
+        </script>
+    </body>
+</html>
