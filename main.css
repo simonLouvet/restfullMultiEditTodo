@@ -1,15 +1,5 @@
-
-
-.DTORow{
-    width:70%;
-    min-width : 700px;
-   
-}
-
-.AddRow{
-    width:50%;
-    min-width : 200px;
-   
+.itemContent{
+    margin:10px
 }
 
 .itemCell{
@@ -18,9 +8,6 @@
     border-bottom-style :solid;
     border-left-style : none;
     border-right-style : none;
-}
-.itemContent{
-    margin:10px
 }
 
 .itemCell:first-child{
@@ -35,6 +22,7 @@
     border-bottom-right-radius: 20px;
     border-right-width : 10px;
     border-right-style : solid;
+    border-left-style:solid;
     }
 
 .itemRowContainer{
